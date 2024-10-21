@@ -73,7 +73,7 @@ pub extern "C" fn PatternScanFirst(pattern: *const u8, len: usize, result: &mut 
 pub extern "C" fn PatternScanAll(
     pattern: *const u8,
     len: usize,
-    results: &mut usize,
+    results: *mut usize,
     results_cap: usize,
     results_count: &mut usize,
 ) -> i32 {
