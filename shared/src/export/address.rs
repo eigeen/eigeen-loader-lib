@@ -31,6 +31,18 @@ impl From<&'static str> for AddressName {
     }
 }
 
+impl From<AddressName> for &'static str {
+    fn from(val: AddressName) -> Self {
+        val.0
+    }
+}
+
+impl std::fmt::Display for AddressName {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
 impl AddressName {
     pub const MID_AFTER_MH_MAIN_CTOR: AddressName = AddressName("Mid:AfterMhMainCtor");
     pub const C_SYSTEM_CTOR: AddressName = AddressName("cSystem:Ctor");
@@ -60,6 +72,18 @@ impl std::ops::Deref for SingletonName {
 impl From<&'static str> for SingletonName {
     fn from(s: &'static str) -> Self {
         SingletonName(s)
+    }
+}
+
+impl From<SingletonName> for &'static str {
+    fn from(val: SingletonName) -> Self {
+        val.0
+    }
+}
+
+impl std::fmt::Display for SingletonName {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
     }
 }
 
