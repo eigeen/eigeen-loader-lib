@@ -1,0 +1,20 @@
+[package]
+name = "eigeen-loader-lib"
+version = "1.0.0"
+edition = "2021"
+
+[dependencies]
+shared = { path = "./shared" }
+log = { workspace = true, features = ["std"] }
+
+[workspace]
+resolver = "2"
+members = ["eigeen-loader", "shared"]
+
+    [workspace.dependencies]
+    log = { version = "0.4" }
+    windows = { version = "0.58" }
+    thiserror = { version = "1.0" }
+    serde = { version = "1.0" }
+    serde_json = { version = "1.0" }
+    safetyhook = { git = "https://github.com/eigeen/safetyhook-rs.git" }
