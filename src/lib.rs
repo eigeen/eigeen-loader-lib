@@ -1,5 +1,6 @@
 //! The wrapper of EigeenLoader exports and provides utilities for plugins.
 
+pub mod game;
 pub mod include;
 pub mod logger;
 
@@ -15,4 +16,10 @@ pub fn get_version() -> LoaderVersion {
         minor: splitted.next().unwrap().parse().unwrap(),
         patch: splitted.next().unwrap().parse().unwrap(),
     }
+}
+
+pub mod prelude {
+    pub use shared::export::*;
+
+    pub use shared::game::mt_type::*;
 }

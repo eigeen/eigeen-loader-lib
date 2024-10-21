@@ -1,15 +1,23 @@
 use std::ffi::c_void;
 
-use crate::game::mt_type::GameObjectExt;
+use shared::{export::SingletonName, game::mt_type::GameObjectExt};
+
+use crate::include::address;
 
 pub struct Quest {
     ptr: *mut c_void,
 }
 unsafe impl Send for Quest {}
 
-crate::derive_game_object!(Quest);
+shared::derive_game_object!(Quest);
 
 impl Quest {
+    pub fn from_singleton() -> Option<Self> {
+        let ptr = address::get_singleton_ptr(SingletonName::QUEST)?;
+
+        Some(Quest { ptr })
+    }
+
     pub fn quest_state(&self) -> i32 {
         self.get_value_copy(0x38)
     }
