@@ -1,15 +1,13 @@
 extern "C" {
     fn GetAddress(name: *const u8, len: usize, result: &mut usize) -> i32;
 
-    fn GetSingleton(name: *const u8, len: usize, result: &mut *mut c_void) -> i32;
+    fn GetSingleton(name: *const u8, len: usize, result: &mut usize) -> i32;
 }
 
-use std::ffi::c_void;
-
-use shared::export::AddressCode;
+use shared::export::{AddressCode, AddressName, SingletonName};
 
 /// Get address record by name.
-pub fn get_address(name: &str) -> Option<usize> {
+pub fn get_address(name: AddressName) -> Option<usize> {
     let mut result = 0;
 
     let code = unsafe { GetAddress(name.as_ptr(), name.len(), &mut result) };
@@ -22,13 +20,13 @@ pub fn get_address(name: &str) -> Option<usize> {
 }
 
 /// Get address record as pointer by name.
-pub fn get_ptr<T>(name: &str) -> Option<*mut T> {
+pub fn get_ptr<T>(name: AddressName) -> Option<*mut T> {
     get_address(name).map(|addr| addr as *mut T)
 }
 
-/// Get a game managed singleton by name.
-pub fn get_singleton<T>(name: &str) -> Option<*mut T> {
-    let mut result = std::ptr::null_mut();
+/// Get a game managed singleton address by name.
+pub fn get_singleton_address(name: SingletonName) -> Option<usize> {
+    let mut result = 0;
 
     let code = unsafe { GetSingleton(name.as_ptr(), name.len(), &mut result) };
 
@@ -36,5 +34,10 @@ pub fn get_singleton<T>(name: &str) -> Option<*mut T> {
         return None;
     }
 
-    Some(result as *mut T)
+    Some(result)
+}
+
+/// Get a game managed singleton pointer by name.
+pub fn get_singleton_ptr<T>(name: SingletonName) -> Option<*mut T> {
+    get_singleton_address(name).map(|addr| addr as *mut T)
 }

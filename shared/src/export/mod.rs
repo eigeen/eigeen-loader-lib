@@ -1,6 +1,6 @@
 mod address;
 
-pub use address::Code as AddressCode;
+pub use address::{AddressName, Code as AddressCode, SingletonName};
 
 #[repr(C)]
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash)]

@@ -2,6 +2,8 @@
 //!
 //! Modified by Eigeen
 
+#![allow(dead_code)]
+
 use std::fmt::{self, Display};
 use std::io::Read;
 use std::str::FromStr;

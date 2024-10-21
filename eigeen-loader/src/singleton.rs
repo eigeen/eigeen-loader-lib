@@ -7,7 +7,10 @@ use std::{
 
 use log::{trace, warn};
 use safetyhook::InlineHook;
-use shared::game::mt_type::{EmptyGameObject, GameObject, GameObjectExt};
+use shared::{
+    export::AddressName,
+    game::mt_type::{EmptyGameObject, GameObject, GameObjectExt},
+};
 
 use crate::address::AddressRepository;
 use crate::error::Result;
@@ -22,8 +25,8 @@ pub struct SingletonManager {}
 
 impl SingletonManager {
     pub fn initialize() -> Result<()> {
-        // 获取函数地址
-        let target_ptr: *mut u8 = AddressRepository::get_ptr("cSystem:Ctor")?;
+        // 获取 csystem 构造函数地址
+        let target_ptr: *mut u8 = AddressRepository::get_ptr(&AddressName::C_SYSTEM_CTOR)?;
 
         let hook = unsafe {
             InlineHook::builder()
@@ -70,6 +73,7 @@ impl SingletonManager {
         SINGLETONS.lock().unwrap().get(name).cloned()
     }
 
+    #[allow(dead_code)]
     pub fn get_ptr_by_name<T>(name: &str) -> Option<*mut T> {
         Self::get_address_by_name(name).map(|addr| addr as *mut T)
     }

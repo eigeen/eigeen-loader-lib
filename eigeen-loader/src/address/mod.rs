@@ -94,3 +94,29 @@ struct AddressRecord {
     pattern: String,
     offset: isize,
 }
+
+#[cfg(test)]
+mod tests {
+    use convert_case::{Case, Casing};
+
+    use super::*;
+
+    const ADDRESS_RECORDS_JSON: &str = include_str!("address_records.json");
+
+    #[test]
+    #[ignore]
+    fn create_managed_address_names() {
+        let address_file: AddressFile = serde_json::from_str(ADDRESS_RECORDS_JSON).unwrap();
+
+        for name in address_file.records.keys() {
+            let name_split = name
+                .split(':')
+                .map(|s| s.to_case(Case::UpperSnake))
+                .collect::<Vec<_>>();
+
+            let var_name = name_split.join("_");
+
+            eprintln!(r#"pub const {var_name}: AddressName = AddressName("{name}");"#,)
+        }
+    }
+}

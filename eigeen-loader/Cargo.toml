@@ -29,6 +29,11 @@ chrono = "0.4"
 [build-dependencies]
 winres = "0.1"
 
+[dev-dependencies]
+convert_case = "0.6"
+
+
 [features]
 default = []
 log_trace = []
+

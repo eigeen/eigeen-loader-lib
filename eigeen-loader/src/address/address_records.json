@@ -1,0 +1,20 @@
+{
+    "records": {
+        "cSystem:Ctor": {
+            "pattern": "48 83 C1 08 FF 15 ?? ?? ?? ?? 48 8B C3 C6 43 30 01 48 83 C4 20 5B C3",
+            "offset": -19
+        },
+        "Quest:Abandon": {
+            "pattern": "F3 0F 2C C0 F3 0F 11 81 A4 31 01 00",
+            "offset": -67
+        },
+        "Core:MhMainCtor": {
+            "pattern": "BA 00 00 08 00 48 8B CF E8 ?? ?? ?? ?? 4C 89 3F C7 87 ?? ?? ?? ?? FF FF FF FF",
+            "offset": -122
+        },
+        "Mid:AfterMhMainCtor": {
+            "pattern": "FF ?? ?? ?? ?? ?? 8B 8B ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 8B C8 48 8B 10",
+            "offset": 26
+        }
+    }
+}

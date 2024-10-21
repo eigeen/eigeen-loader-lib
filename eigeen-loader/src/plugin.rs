@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use log::{error, info};
+use log::{error, info, warn};
 use shared::export::LoaderVersion;
 use windows::{
     core::{s, PCWSTR},
@@ -120,7 +120,12 @@ impl PluginLoader {
 
         // loader version compatibility check
         if version.major != 1 {
-            return Err(Error::IncompatiblePluginRequiredVersion(version));
+            if version == LoaderVersion::default() {
+                let file_name = path.as_ref().file_name().unwrap().to_str().unwrap();
+                warn!("[Loading:{file_name}] Function LoaderVersion(&mut LoaderVersion) not found, or version is not set. If it is a compatible plugin, ignore this warning.");
+            } else {
+                return Err(Error::IncompatiblePluginRequiredVersion(version));
+            }
         }
 
         Ok(Plugin {
