@@ -90,4 +90,5 @@ impl std::fmt::Display for SingletonName {
 impl SingletonName {
     pub const QUEST: SingletonName = SingletonName("sQuest");
     pub const PLAYER: SingletonName = SingletonName("sPlayer");
+    pub const CHAT: SingletonName = SingletonName("sChat");
 }

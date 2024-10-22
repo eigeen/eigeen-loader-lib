@@ -1,4 +1,5 @@
 pub mod mt_type;
+pub mod resource;
 
 #[macro_export]
 macro_rules! derive_game_object {

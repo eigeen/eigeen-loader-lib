@@ -1,6 +1,5 @@
 //! The wrapper of EigeenLoader exports and provides utilities for plugins.
 
-pub mod game;
 pub mod include;
 pub mod logger;
 

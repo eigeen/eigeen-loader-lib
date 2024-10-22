@@ -4,9 +4,11 @@ use windows::{
         Foundation::{HMODULE, HWND},
         System::{
             ProcessStatus::{EnumProcessModules, GetModuleInformation, MODULEINFO},
-            Threading::GetCurrentProcess,
+            Threading::{GetCurrentProcess, GetCurrentProcessId},
         },
-        UI::WindowsAndMessaging::{MessageBoxW, MB_ICONERROR},
+        UI::WindowsAndMessaging::{
+            GetForegroundWindow, GetWindowThreadProcessId, MessageBoxW, MB_ICONERROR,
+        },
     },
 };
 
@@ -58,4 +60,28 @@ pub fn message_box_fatal(message: &str) {
             MB_ICONERROR,
         )
     };
+}
+
+/// 检查当前活动窗口是否为游戏窗口
+pub fn is_mhw_foreground() -> bool {
+    // 获取当前前台窗口句柄
+    let foreground_hwnd = unsafe { GetForegroundWindow() };
+    if foreground_hwnd.0.is_null() {
+        return false;
+    }
+
+    // 获取窗口所属进程ID
+    let mut window_pid = 0;
+    unsafe {
+        GetWindowThreadProcessId(foreground_hwnd, Some(&mut window_pid));
+    };
+    if window_pid == 0 {
+        return false;
+    }
+
+    // 获取当前进程ID
+    // 伪句柄无需关闭
+    let current_pid = unsafe { GetCurrentProcessId() };
+
+    window_pid == current_pid
 }

@@ -26,4 +26,9 @@ pub enum Error {
     PatternMismatch(String),
     #[error("Pattern name is not managed by loader: {0}")]
     PatternUnmanaged(String),
+
+    #[error("Plugin not found at path: {0}")]
+    PluginNotFound(String),
+    #[error("Plugin cannot safely unload.")]
+    UnloadPlugin,
 }

@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::{borrow::Cow, path::Path};
 
 use log::{error, info, warn};
 use shared::export::LoaderVersion;
@@ -22,6 +22,7 @@ pub struct PluginLoader {
 pub struct Plugin {
     name: String,
     handle: HMODULE,
+    initialized: bool,
 }
 
 unsafe impl Send for Plugin {}
@@ -35,6 +36,8 @@ impl Drop for Plugin {
 }
 
 impl PluginLoader {
+    const PLUGIN_DIR: &'static str = "./eigeen_loader/plugins/";
+
     pub fn new() -> Self {
         PluginLoader {
             plugins: Vec::new(),
@@ -45,16 +48,14 @@ impl PluginLoader {
     ///
     /// returns `(all_count, success_count)`
     pub fn auto_load_plugins(&mut self) -> Result<(usize, usize)> {
-        let scan_path = "./eigeen_loader/plugins/";
-
-        if !Path::new(scan_path).exists() {
-            info!("No plugin directory found, skipping plugin auto-load.");
+        if !Path::new(Self::PLUGIN_DIR).exists() {
+            info!("Plugin directory not found, skipping plugin auto-load.");
             return Ok((0, 0));
         }
 
         let mut stat = (0, 0);
 
-        for entry in std::fs::read_dir(scan_path)? {
+        for entry in std::fs::read_dir(Self::PLUGIN_DIR)? {
             let entry = entry?;
             let path = entry.path();
             if !path.is_file() {
@@ -85,6 +86,81 @@ impl PluginLoader {
         }
 
         Ok(stat)
+    }
+
+    /// Load a specific plugin by name.
+    ///
+    /// Will search for the plugin in the default plugins directory.
+    pub fn load(&mut self, name: &str) -> Result<()> {
+        if !Path::new(Self::PLUGIN_DIR).exists() {
+            return Err(Error::PluginNotFound(Self::PLUGIN_DIR.to_string()));
+        }
+
+        let name = if name.ends_with(".dll") {
+            Cow::from(name)
+        } else {
+            Cow::from(format!("{}.dll", name))
+        };
+
+        let plugin_path = Path::new(Self::PLUGIN_DIR).join(name.as_ref());
+
+        if !plugin_path.exists() {
+            return Err(Error::PluginNotFound(
+                plugin_path.to_string_lossy().to_string(),
+            ));
+        }
+
+        match Self::init_plugin(&plugin_path) {
+            Ok(plugin) => {
+                info!("Plugin loaded: {}", plugin.name);
+                self.plugins.push(plugin);
+                // TODO: show in-game message
+                Ok(())
+            }
+            Err(e) => Err(e),
+        }
+    }
+
+    /// Unload a specific plugin by name.
+    pub fn unload(&mut self, name: &str) -> Result<()> {
+        let plugin = self.plugins.iter_mut().find(|p| p.name == name);
+
+        let Some(plugin) = plugin else {
+            return Err(Error::PluginNotFound(name.to_string()));
+        };
+
+        // uninitialize plugin
+        if plugin.initialized {
+            unsafe {
+                let uninit_func = GetProcAddress(plugin.handle, s!("Uninitialize"));
+
+                // We must call the uninitialize function for safety.
+                let Some(uninit_func) = uninit_func else {
+                    return Err(Error::UnloadPlugin);
+                };
+
+                let uninit_func: UninitializeFunc = std::mem::transmute(uninit_func);
+                let code = uninit_func();
+
+                if code != 0 {
+                    error!("Failed to uninitialize plugin: code = {}", code);
+                    return Err(Error::UnloadPlugin);
+                }
+            }
+
+            plugin.initialized = false;
+        }
+
+        // free library
+        if let Err(e) = unsafe { FreeLibrary(plugin.handle) } {
+            error!("Failed to free library: {}", e);
+            return Err(Error::UnloadPlugin);
+        }
+
+        // remove from list
+        self.plugins.retain(|p| p.name != name);
+
+        Ok(())
     }
 
     fn init_plugin<P: AsRef<Path>>(path: P) -> Result<Plugin> {
@@ -122,7 +198,8 @@ impl PluginLoader {
         if version.major != 1 {
             if version == LoaderVersion::default() {
                 let file_name = path.as_ref().file_name().unwrap().to_str().unwrap();
-                warn!("[Loading:{file_name}] Function LoaderVersion(&mut LoaderVersion) not found, or version is not set. If it is a compatible plugin, ignore this warning.");
+                warn!("[{file_name}] Function LoaderVersion(&mut LoaderVersion) not found, or version is not set.");
+                warn!("[{file_name}] If it is a compatible plugin, ignore this warning.");
             } else {
                 return Err(Error::IncompatiblePluginRequiredVersion(version));
             }
@@ -136,9 +213,17 @@ impl PluginLoader {
                 .to_string_lossy()
                 .to_string(),
             handle: hmodule,
+            initialized: true,
         })
+    }
+}
+
+impl Default for PluginLoader {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
 type InitializeFunc = unsafe extern "C" fn() -> i32;
 type VersionFunc = unsafe extern "C" fn(&mut LoaderVersion);
+type UninitializeFunc = unsafe extern "C" fn() -> i32;

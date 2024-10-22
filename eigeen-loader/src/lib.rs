@@ -2,10 +2,11 @@ use std::path::Path;
 use std::sync::atomic::AtomicBool;
 use std::sync::Mutex;
 
-use log::info;
+use log::{debug, info};
 use windows::Win32::Foundation::{BOOL, TRUE};
 
 mod address;
+mod command;
 mod error;
 mod export;
 mod hook;
@@ -21,7 +22,7 @@ fn panic_hook(info: &std::panic::PanicInfo) {
     utility::windows::message_box_fatal(&format!("EigeenLoader panic! {}", info));
 }
 
-static PLUGIN_LOADER: Mutex<Option<plugin::PluginLoader>> = Mutex::new(None);
+pub static PLUGIN_LOADER: Mutex<Option<plugin::PluginLoader>> = Mutex::new(None);
 static INITIALIZED: AtomicBool = AtomicBool::new(false);
 
 #[no_mangle]
@@ -51,12 +52,20 @@ pub extern "C-unwind" fn Initialize() -> BOOL {
 
     // setup hooks
     let result = hook::mh_main::hook_after_mh_main_ctor(|_mh_main_addr| {
-        info!("After MhMainCtor");
+        debug!("After MhMainCtor");
         singleton::SingletonManager::parse_singletons();
     });
     if let Err(e) = result {
         log::error!("Fatal error: Failed to hook MhMainCtor: {}", e);
         return TRUE;
+    }
+
+    let result = hook::chat::hook_chat_sent(|msg| {
+        command::CommandHandler::on_message(msg);
+    });
+    if let Err(e) = result {
+        log::warn!("Error: Failed to hook ChatSent: {}", e);
+        log::warn!("Chat commands would not work correctly.");
     }
 
     // initialize game singletons
