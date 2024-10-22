@@ -108,7 +108,10 @@ mod tests {
     fn create_managed_address_names() {
         let address_file: AddressFile = serde_json::from_str(ADDRESS_RECORDS_JSON).unwrap();
 
-        for name in address_file.records.keys() {
+        let mut names = address_file.records.keys().collect::<Vec<_>>();
+        names.sort();
+
+        for name in names {
             let name_split = name
                 .split(':')
                 .map(|s| s.to_case(Case::UpperSnake))

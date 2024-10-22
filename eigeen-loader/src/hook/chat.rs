@@ -15,7 +15,7 @@ pub fn hook_chat_sent<F>(callback: F) -> Result<()>
 where
     F: Fn(&str) + Send + 'static,
 {
-    let target = AddressRepository::get_ptr(&AddressName::MID_AFTER_MH_MAIN_CTOR)?;
+    let target = AddressRepository::get_ptr(&AddressName::CHAT_MESSAGE_SENT)?;
 
     unsafe { CALLBACK.replace(Box::new(callback)) };
 

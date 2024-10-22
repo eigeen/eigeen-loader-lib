@@ -15,6 +15,14 @@
         "Mid:AfterMhMainCtor": {
             "pattern": "FF ?? ?? ?? ?? ?? 8B 8B ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 8B C8 48 8B 10",
             "offset": 26
+        },
+        "Chat:MessageSent": {
+            "pattern": "81 08 10 00 00 48 ?? ?? ?? ?? ?? ?? 66 44 89 01 48 3B D0 74 ?? 44 89",
+            "offset": -5
+        },
+        "Chat:SystemMessage": {
+            "pattern": "0F 29 B4 24 B0 01 00 00 48 8B DA 0F 28 F2 48 8B F9 75 09",
+            "offset": -25
         }
     }
 }

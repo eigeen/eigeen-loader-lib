@@ -31,8 +31,13 @@ impl CommandHandler {
                         let msg = format!("Failed to load plugin: {}", e);
                         log::error!("{}", msg);
                         utility::game::show_system_message(&msg);
+                        return;
                     }
                 }
+
+                let msg = format!("Loaded plugin: {}", name);
+                info!("{}", msg);
+                utility::game::show_system_message(&msg);
             }
             "unload" => {
                 let Some(name) = parts.get(1) else {
@@ -44,12 +49,15 @@ impl CommandHandler {
                         let msg = format!("Failed to unload plugin: {}", e);
                         log::error!("{}", msg);
                         utility::game::show_system_message(&msg);
+                        return;
                     }
                 }
+
+                let msg = format!("Unloaded plugin: {}", name);
+                info!("{}", msg);
+                utility::game::show_system_message(&msg);
             }
             _ => {}
         }
-
-        todo!()
     }
 }

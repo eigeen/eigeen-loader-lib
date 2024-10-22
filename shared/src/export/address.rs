@@ -44,10 +44,12 @@ impl std::fmt::Display for AddressName {
 }
 
 impl AddressName {
-    pub const MID_AFTER_MH_MAIN_CTOR: AddressName = AddressName("Mid:AfterMhMainCtor");
-    pub const C_SYSTEM_CTOR: AddressName = AddressName("cSystem:Ctor");
+    pub const CHAT_MESSAGE_SENT: AddressName = AddressName("Chat:MessageSent");
+    pub const CHAT_SYSTEM_MESSAGE: AddressName = AddressName("Chat:SystemMessage");
     pub const CORE_MH_MAIN_CTOR: AddressName = AddressName("Core:MhMainCtor");
+    pub const MID_AFTER_MH_MAIN_CTOR: AddressName = AddressName("Mid:AfterMhMainCtor");
     pub const QUEST_ABANDON: AddressName = AddressName("Quest:Abandon");
+    pub const C_SYSTEM_CTOR: AddressName = AddressName("cSystem:Ctor");
 }
 
 /// Managed singleton names.
