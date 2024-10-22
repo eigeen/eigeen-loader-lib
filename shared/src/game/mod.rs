@@ -5,11 +5,11 @@ macro_rules! derive_game_object {
     ($name:ident) => {
         impl $crate::game::mt_type::GameObject for $name {
             fn from_ptr(ptr: *mut c_void) -> Self {
-                Self { ptr }
+                Self(ptr)
             }
 
             fn as_ptr(&self) -> *mut c_void {
-                self.ptr
+                self.0
             }
         }
     };

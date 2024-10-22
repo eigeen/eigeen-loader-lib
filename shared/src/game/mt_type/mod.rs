@@ -108,9 +108,9 @@ pub trait GameObjectExt: GameObject {
 impl<T: GameObject> GameObjectExt for T {}
 
 /// A empty game object, contains address only.
-pub struct EmptyGameObject {
-    ptr: *mut c_void,
-}
+#[repr(transparent)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct EmptyGameObject(*mut c_void);
 
 unsafe impl Send for EmptyGameObject {}
 

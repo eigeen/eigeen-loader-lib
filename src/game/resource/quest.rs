@@ -4,9 +4,10 @@ use shared::{export::SingletonName, game::mt_type::GameObjectExt};
 
 use crate::include::address;
 
-pub struct Quest {
-    ptr: *mut c_void,
-}
+#[repr(transparent)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct Quest(*mut c_void);
+
 unsafe impl Send for Quest {}
 
 shared::derive_game_object!(Quest);
@@ -15,7 +16,7 @@ impl Quest {
     pub fn from_singleton() -> Option<Self> {
         let ptr = address::get_singleton_ptr(SingletonName::QUEST)?;
 
-        Some(Quest { ptr })
+        Some(Quest(ptr))
     }
 
     pub fn quest_state(&self) -> i32 {
