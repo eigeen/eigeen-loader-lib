@@ -35,7 +35,7 @@ pub fn get_ptr<T>(name: AddressName) -> Option<*mut T> {
 /// Scan first address by pattern.
 ///
 /// Search range: the first module process space.
-pub fn pattern_scan_first(pattern: &[u8]) -> Option<usize> {
+pub fn pattern_scan_first(pattern: &str, offset: isize) -> Option<usize> {
     let mut result = 0;
 
     let code = unsafe { PatternScanFirst(pattern.as_ptr(), pattern.len(), &mut result) };
@@ -44,13 +44,13 @@ pub fn pattern_scan_first(pattern: &[u8]) -> Option<usize> {
         return None;
     }
 
-    Some(result)
+    Some((result as isize + offset) as usize)
 }
 
 /// Scan all addresses by pattern.
 ///
 /// Search range: the first module process space.
-pub fn pattern_scan_all(pattern: &[u8]) -> Vec<usize> {
+pub fn pattern_scan_all(pattern: &str, offset: isize) -> Vec<usize> {
     // 为结果集分配默认大小
     let mut results_cap = 32;
     let mut results = vec![0; results_cap];
@@ -91,6 +91,10 @@ pub fn pattern_scan_all(pattern: &[u8]) -> Vec<usize> {
             return vec![];
         }
     }
+
+    results
+        .iter_mut()
+        .for_each(|addr| *addr = (*addr as isize + offset) as usize);
 
     results
 }
