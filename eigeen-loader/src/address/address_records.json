@@ -12,7 +12,11 @@
             "pattern": "BA 00 00 08 00 48 8B CF E8 ?? ?? ?? ?? 4C 89 3F C7 87 ?? ?? ?? ?? FF FF FF FF",
             "offset": -122
         },
-        "Mid:AfterMhMainCtor": {
+        "Core:GameRevision": {
+            "pattern": "48 83 EC 48 48 8B 05 ? ? ? ? 4C 8D 0D ? ? ? ? BA 0A 00 00 00",
+            "offset": 0
+        },
+        "Core:AfterMhMainCtor": {
             "pattern": "FF ?? ?? ?? ?? ?? 8B 8B ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 8B C8 48 8B 10",
             "offset": 26
         },
@@ -24,6 +28,5 @@
             "pattern": "0F 29 B4 24 B0 01 00 00 48 8B DA 0F 28 F2 48 8B F9 75 09",
             "offset": -25
         }
-    },
-    "third_party": {}
+    }
 }

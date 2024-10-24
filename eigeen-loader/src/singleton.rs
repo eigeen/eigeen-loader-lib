@@ -82,8 +82,6 @@ impl SingletonManager {
 type FuncType = extern "C" fn(*const c_void) -> *const c_void;
 
 unsafe extern "C" fn csystem_ctor_hooked(instance: *const c_void) -> *const c_void {
-    trace!("Creating singleton: {:p}", instance);
-
     SINGLETONS_TEMP.borrow_mut().insert(instance as usize);
 
     let original: FuncType = std::mem::transmute(HOOK.lock().unwrap().as_ref().unwrap().original());

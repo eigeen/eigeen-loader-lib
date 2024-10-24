@@ -74,6 +74,12 @@ pub extern "C-unwind" fn Initialize() -> BOOL {
         log::error!("Some plugins may not work correctly.");
     }
 
+    // do after initialization
+    // recover focus to game window
+    if let Err(e) = utility::windows::focus_mhw_main_window() {
+        log::warn!("Failed to focus MHW main window: {}", e);
+    };
+
     info!("EigeenLoader initialized. Loading plugins...");
 
     // create plugin loader

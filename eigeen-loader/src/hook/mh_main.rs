@@ -12,7 +12,7 @@ pub fn hook_after_mh_main_ctor<F>(callback: F) -> Result<()>
 where
     F: Fn(usize) + Send + 'static,
 {
-    let target = AddressRepository::get_ptr(&AddressName::MID_AFTER_MH_MAIN_CTOR)?;
+    let target = AddressRepository::get_ptr(&AddressName::CORE_AFTER_MH_MAIN_CTOR)?;
 
     unsafe { CALLBACK.replace(Box::new(callback)) };
 

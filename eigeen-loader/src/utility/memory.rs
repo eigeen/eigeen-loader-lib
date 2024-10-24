@@ -13,8 +13,8 @@ pub enum MemoryError {
     #[error("pattern scan error: {0}")]
     PatternScan(#[from] pattern_scan::Error),
 
-    #[error("windows error: {0}")]
-    Windows(#[from] windows::core::Error),
+    #[error("windows module error: {0}")]
+    Windows(#[from] super::windows::WindowsError),
 }
 
 /// 扫描内存，查找匹配的第一个地址

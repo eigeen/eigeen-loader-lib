@@ -24,6 +24,8 @@ impl AddressRepository {
 
         let address_file: AddressFile = serde_json::from_reader(reader)?;
 
+        log::trace!("Address file loaded: {:?}", address_file);
+
         unsafe {
             ADDRESS_FILE = Some(address_file);
         }
@@ -86,10 +88,7 @@ impl AddressRepository {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct AddressFile {
-    /// Schema version.
-    version: u32,
     records: HashMap<String, AddressRecord>,
-    third_party: HashMap<String, AddressRecord>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

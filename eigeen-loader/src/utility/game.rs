@@ -1,4 +1,7 @@
-use std::ffi::{c_void, CString};
+use std::{
+    ffi::{c_void, CStr, CString},
+    sync::Mutex,
+};
 
 use shared::export::{AddressName, SingletonName};
 
@@ -35,6 +38,62 @@ pub fn show_system_message(message: &str) {
         -1,
         0,
     )
+}
+
+static GAME_REVISION: Mutex<Option<String>> = Mutex::new(None);
+
+/// Get game revision string.
+///
+/// e.g. "421810"
+pub fn get_game_revision() -> Option<String> {
+    log::trace!("1");
+    if let Some(revision) = GAME_REVISION.lock().unwrap().as_ref() {
+        return Some(revision.clone());
+    }
+    log::trace!("2");
+
+    let func_ptr: *const u8 = match AddressRepository::get_ptr(&AddressName::CORE_GAME_REVISION) {
+        Ok(ptr) => ptr,
+        Err(e) => {
+            log::error!("Get game revision failed: {}", e);
+            return None;
+        }
+    };
+    log::trace!("3");
+
+    unsafe {
+        // validate if it is MOV op
+        let mov_start = func_ptr.add(4);
+        let op = std::slice::from_raw_parts(mov_start, 2);
+        if op != [0x48, 0x8B] {
+            log::error!("Get game revision failed: invalid MOV op");
+            return None;
+        }
+
+        let const_addr_rel: i32 = *(mov_start.add(3) as *const i32);
+        let mov_end = mov_start.add(7);
+
+        let const_ptr = *(mov_end.offset(const_addr_rel as isize) as *const *const i8);
+
+        let game_revision_cstr = CStr::from_ptr(const_ptr);
+        let game_revision_str = game_revision_cstr.to_string_lossy().to_string();
+
+        GAME_REVISION
+            .lock()
+            .unwrap()
+            .replace(game_revision_str.clone());
+
+        Some(game_revision_str)
+    }
+}
+
+/// Get game revision integer.
+///
+/// e.g. 421810
+pub fn get_game_revision_int() -> Option<i32> {
+    let game_revision = get_game_revision()?;
+
+    game_revision.parse().ok()
 }
 
 // pub fn show_system_message_primary(message: &str) {
