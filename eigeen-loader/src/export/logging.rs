@@ -11,7 +11,7 @@ pub extern "C" fn Log(msg: *const u8, len: usize, level: u8) {
         2 => log::warn!("{}", message),
         3 => log::info!("{}", message),
         4 => log::debug!("{}", message),
-        5 => log::trace!("{}", message),
+        5 => log::trace!("trace - {}", message),
         _ => log::info!("{}", message),
     }
 }

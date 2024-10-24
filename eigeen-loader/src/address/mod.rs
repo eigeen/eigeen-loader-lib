@@ -86,7 +86,10 @@ impl AddressRepository {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct AddressFile {
+    /// Schema version.
+    version: u32,
     records: HashMap<String, AddressRecord>,
+    third_party: HashMap<String, AddressRecord>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

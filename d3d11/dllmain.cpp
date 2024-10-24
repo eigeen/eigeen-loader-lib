@@ -59,15 +59,6 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
             return TRUE;
         }
 
-        // // Check if dinput8.dll loaded
-        // // ensure loader loaded after dinput8.dll loaded
-        // // for compatibility with stracker's loader
-        // // if some plugins depends on stracker's loader: loader.dll
-        // if (!containsModule(modules, L"dinput8.dll"))
-        // {
-        //     return TRUE;
-        // }
-
         HMODULE hCore = LoadLibraryW(MODULE_NAME);
         if (!hCore)
         {

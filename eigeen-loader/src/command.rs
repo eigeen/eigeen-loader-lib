@@ -26,38 +26,46 @@ impl CommandHandler {
                     return;
                 };
 
-                if let Some(loader) = crate::PLUGIN_LOADER.lock().unwrap().as_mut() {
-                    if let Err(e) = loader.load(name) {
-                        let msg = format!("Failed to load plugin: {}", e);
-                        log::error!("{}", msg);
-                        utility::game::show_system_message(&msg);
-                        return;
-                    }
-                }
-
-                let msg = format!("Loaded plugin: {}", name);
-                info!("{}", msg);
-                utility::game::show_system_message(&msg);
+                do_load(name);
             }
             "unload" => {
                 let Some(name) = parts.get(1) else {
                     return;
                 };
 
-                if let Some(loader) = crate::PLUGIN_LOADER.lock().unwrap().as_mut() {
-                    if let Err(e) = loader.unload(name) {
-                        let msg = format!("Failed to unload plugin: {}", e);
-                        log::error!("{}", msg);
-                        utility::game::show_system_message(&msg);
-                        return;
-                    }
-                }
-
-                let msg = format!("Unloaded plugin: {}", name);
-                info!("{}", msg);
-                utility::game::show_system_message(&msg);
+                do_unload(name);
             }
             _ => {}
         }
     }
+}
+
+fn do_load(name: &str) {
+    if let Some(loader) = crate::PLUGIN_LOADER.lock().unwrap().as_mut() {
+        if let Err(e) = loader.load(name) {
+            let msg = format!("Failed to load plugin: {}", e);
+            log::error!("{}", msg);
+            utility::game::show_system_message(&msg);
+            return;
+        }
+    }
+
+    let msg = format!("Loaded plugin: {}", name);
+    info!("{}", msg);
+    utility::game::show_system_message(&msg);
+}
+
+fn do_unload(name: &str) {
+    if let Some(loader) = crate::PLUGIN_LOADER.lock().unwrap().as_mut() {
+        if let Err(e) = loader.unload(name) {
+            let msg = format!("Failed to unload plugin: {}", e);
+            log::error!("{}", msg);
+            utility::game::show_system_message(&msg);
+            return;
+        }
+    }
+
+    let msg = format!("Unloaded plugin: {}", name);
+    info!("{}", msg);
+    utility::game::show_system_message(&msg);
 }

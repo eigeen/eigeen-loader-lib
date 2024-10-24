@@ -24,5 +24,6 @@
             "pattern": "0F 29 B4 24 B0 01 00 00 48 8B DA 0F 28 F2 48 8B F9 75 09",
             "offset": -25
         }
-    }
+    },
+    "third_party": {}
 }
