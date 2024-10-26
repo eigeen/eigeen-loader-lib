@@ -46,11 +46,9 @@ static GAME_REVISION: Mutex<Option<String>> = Mutex::new(None);
 ///
 /// e.g. "421810"
 pub fn get_game_revision() -> Option<String> {
-    log::trace!("1");
     if let Some(revision) = GAME_REVISION.lock().unwrap().as_ref() {
         return Some(revision.clone());
     }
-    log::trace!("2");
 
     let func_ptr: *const u8 = match AddressRepository::get_ptr(&AddressName::CORE_GAME_REVISION) {
         Ok(ptr) => ptr,
@@ -59,7 +57,6 @@ pub fn get_game_revision() -> Option<String> {
             return None;
         }
     };
-    log::trace!("3");
 
     unsafe {
         // validate if it is MOV op

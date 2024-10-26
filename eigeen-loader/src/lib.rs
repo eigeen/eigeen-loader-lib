@@ -53,7 +53,22 @@ pub extern "C-unwind" fn Initialize() -> BOOL {
     // setup hooks
     let result = hook::mh_main::hook_after_mh_main_ctor(|_mh_main_addr| {
         debug!("After MhMainCtor");
+        // parse game singletons
         singleton::SingletonManager::parse_singletons();
+        // create plugin loader
+        let mut loader = plugin::PluginLoader::new();
+        // load plugins
+        let result = loader.auto_load_plugins();
+        match result {
+            Ok((total, success)) => info!(
+                "Loaded {} plugins ({} total, {} failed).",
+                success,
+                total,
+                total - success
+            ),
+            Err(e) => log::error!("Failed to load any plugins: {}", e),
+        }
+        PLUGIN_LOADER.lock().unwrap().replace(loader);
     });
     if let Err(e) = result {
         log::error!("Fatal error: Failed to hook MhMainCtor: {}", e);
@@ -80,24 +95,7 @@ pub extern "C-unwind" fn Initialize() -> BOOL {
         log::warn!("Failed to focus MHW main window: {}", e);
     };
 
-    info!("EigeenLoader initialized. Loading plugins...");
-
-    // create plugin loader
-    let mut loader = plugin::PluginLoader::new();
-    // load plugins
-    let result = loader.auto_load_plugins();
-    match result {
-        Ok((total, success)) => info!(
-            "Loaded {} plugins ({} total, {} failed).",
-            success,
-            total,
-            total - success
-        ),
-        Err(e) => log::error!("Failed to load any plugins: {}", e),
-    }
-    PLUGIN_LOADER.lock().unwrap().replace(loader);
-
-    log::info!("EigeenLoader initialized.");
+    info!("EigeenLoader initialized.");
 
     TRUE
 }
