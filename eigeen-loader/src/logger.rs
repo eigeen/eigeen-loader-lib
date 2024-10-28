@@ -5,7 +5,8 @@ use windows::Win32::{
     Foundation::{CloseHandle, HANDLE},
     System::Console::{
         AllocConsole, GetConsoleWindow, GetStdHandle, SetConsoleMode, WriteConsoleW,
-        ENABLE_PROCESSED_OUTPUT, ENABLE_VIRTUAL_TERMINAL_PROCESSING, STD_OUTPUT_HANDLE,
+        ENABLE_PROCESSED_OUTPUT, ENABLE_VIRTUAL_TERMINAL_PROCESSING, ENABLE_WRAP_AT_EOL_OUTPUT,
+        STD_OUTPUT_HANDLE,
     },
 };
 
@@ -31,7 +32,9 @@ pub fn initialize_logging() -> Result<()> {
         // enable virtual terminal processing
         SetConsoleMode(
             stdout_handle,
-            ENABLE_VIRTUAL_TERMINAL_PROCESSING | ENABLE_PROCESSED_OUTPUT,
+            ENABLE_VIRTUAL_TERMINAL_PROCESSING
+                | ENABLE_PROCESSED_OUTPUT
+                | ENABLE_WRAP_AT_EOL_OUTPUT,
         )?;
     };
 

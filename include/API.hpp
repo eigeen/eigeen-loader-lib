@@ -21,6 +21,8 @@ extern "C"
     int32_t PatternScanFirst(const uint8_t *pattern, size_t len, uintptr_t *result);
     int32_t PatternScanAll(const uint8_t *pattern, size_t len, uintptr_t *results, size_t results_cap, size_t *results_count);
     int32_t GetSingleton(const uint8_t *name, size_t len, uintptr_t *result);
+
+    void ShowSystemMessage(const uint8_t *msg, size_t len);
 }
 
 #define API __declspec(dllexport)
@@ -188,5 +190,13 @@ public:
         }
 
         return result;
+    }
+};
+
+class Game {
+    public:
+    static void show_system_message(const std::string &msg)
+    {
+        ShowSystemMessage(reinterpret_cast<const uint8_t *>(msg.c_str()), msg.size());
     }
 };

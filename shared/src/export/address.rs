@@ -50,6 +50,8 @@ impl AddressName {
     pub const CORE_GAME_REVISION: AddressName = AddressName("Core:GameRevision");
     pub const CORE_MH_MAIN_CTOR: AddressName = AddressName("Core:MhMainCtor");
     pub const QUEST_ABANDON: AddressName = AddressName("Quest:Abandon");
+    pub const RESOURCE_MANAGER_CLOSE_FILE: AddressName = AddressName("ResourceManager:CloseFile");
+    pub const RESOURCE_MANAGER_OPEN_FILE: AddressName = AddressName("ResourceManager:OpenFile");
     pub const C_SYSTEM_CTOR: AddressName = AddressName("cSystem:Ctor");
 }
 
@@ -94,4 +96,5 @@ impl SingletonName {
     pub const QUEST: SingletonName = SingletonName("sQuest");
     pub const PLAYER: SingletonName = SingletonName("sPlayer");
     pub const CHAT: SingletonName = SingletonName("sChat");
+    pub const WWISE_BGM_MANAGER: SingletonName = SingletonName("sWwiseBgmManager");
 }

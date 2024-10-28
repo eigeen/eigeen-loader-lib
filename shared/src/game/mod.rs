@@ -1,3 +1,4 @@
+pub mod chat;
 pub mod mt_type;
 pub mod resource;
 
