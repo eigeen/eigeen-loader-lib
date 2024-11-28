@@ -19,6 +19,8 @@ pub enum Error {
 
     #[error("Failed to initialize plugin: code {0}")]
     InitPlugin(i32),
+    #[error("Failed to initialize core plugin: code {0}")]
+    InitCorePlugin(i32),
     #[error("Incompatible plugin version required: {0}")]
     IncompatiblePluginRequiredVersion(LoaderVersion),
 

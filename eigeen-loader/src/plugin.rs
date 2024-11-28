@@ -30,7 +30,9 @@ unsafe impl Send for Plugin {}
 impl Drop for Plugin {
     fn drop(&mut self) {
         unsafe {
-            let _ = FreeLibrary(self.handle);
+            if let Err(e) = FreeLibrary(self.handle) {
+                error!("Failed to free library of plugin {}: {}", self.name, e);
+            };
         }
     }
 }

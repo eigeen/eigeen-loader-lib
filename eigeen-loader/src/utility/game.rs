@@ -98,21 +98,3 @@ pub fn get_game_revision_int() -> Option<i32> {
 
     game_revision.parse().ok()
 }
-
-// pub fn show_system_message_primary(message: &str) {
-//     let show_message: extern "C" fn(*const c_void, *const i8, i32, i32, i8) =
-//         unsafe { std::mem::transmute(0x141A53400_i64) };
-//     let message_cstring = CString::new(message).unwrap_or_default();
-
-//     let Some(s_chat) = SingletonManager::get_ptr_by_name(&SingletonName::CHAT) else {
-//         return;
-//     };
-
-//     show_message(
-//         s_chat,
-//         message_cstring.as_ptr(),
-//         message.len() as i32,
-//         -1,
-//         1,
-//     )
-// }
