@@ -5,7 +5,7 @@
 
 use std::{collections::HashMap, ffi::c_void, path::Path};
 
-use log::{error, info};
+use log::{error, info, warn};
 use shared::export::LoaderVersion;
 use windows::{
     core::{s, PCWSTR},
@@ -22,14 +22,14 @@ use crate::error::{Error, Result};
 /// Non-thread-safe.
 #[derive(Debug, Default)]
 pub struct CoreAPI {
-    plugins: Vec<CorePlugin>,
+    extensions: Vec<CoreExtension>,
     functions: HashMap<String, *const c_void>,
 }
 
 unsafe impl Send for CoreAPI {}
 
 impl CoreAPI {
-    const CORE_PLUGIN_DIR: &str = "eigeen_loader/core_plugins/";
+    const CORE_EXT_DIR: &str = "eigeen_loader/core_extensions/";
 
     pub fn instance() -> &'static mut CoreAPI {
         static mut INSTANCE: Option<CoreAPI> = None;
@@ -51,15 +51,15 @@ impl CoreAPI {
         self.functions.get(name).copied()
     }
 
-    pub fn load_core_plugins(&mut self) -> Result<(usize, usize)> {
-        if !Path::new(Self::CORE_PLUGIN_DIR).exists() {
-            info!("Core plugin directory not found, skipping.");
+    pub fn load_core_exts(&mut self) -> Result<(usize, usize)> {
+        if !Path::new(Self::CORE_EXT_DIR).exists() {
+            info!("Core extensions directory not found, skipping.");
             return Ok((0, 0));
         }
 
         let mut stat = (0, 0);
 
-        for entry in std::fs::read_dir(Self::CORE_PLUGIN_DIR)? {
+        for entry in std::fs::read_dir(Self::CORE_EXT_DIR)? {
             let entry = entry?;
             let path = entry.path();
             if !path.is_file() {
@@ -69,15 +69,15 @@ impl CoreAPI {
                 if ext == "dll" {
                     stat.0 += 1;
 
-                    match Self::init_core_plugin(&path) {
-                        Ok(plugin) => {
-                            info!("Core plugin loaded: {}", plugin.name);
-                            self.plugins.push(plugin);
+                    match Self::init_core_extension(&path) {
+                        Ok(extension) => {
+                            info!("Core plugin loaded: {}", extension.name);
+                            self.extensions.push(extension);
 
                             stat.1 += 1;
                         }
                         Err(e) => error!(
-                            "Failed to load core plugin {}: {}",
+                            "Failed to load core extension {}: {}",
                             path.file_stem()
                                 .unwrap_or_default()
                                 .to_str()
@@ -92,7 +92,7 @@ impl CoreAPI {
         Ok(stat)
     }
 
-    fn init_core_plugin<P: AsRef<Path>>(path: P) -> Result<CorePlugin> {
+    fn init_core_extension<P: AsRef<Path>>(path: P) -> Result<CoreExtension> {
         let path_w =
             crate::utility::string::to_wstring_bytes_with_nul(path.as_ref().to_str().unwrap());
 
@@ -108,8 +108,10 @@ impl CoreAPI {
                 let param = CoreAPIParam::new();
                 let code = init_func(&param);
                 if code != 0 {
-                    return Err(Error::InitCorePlugin(code));
+                    return Err(Error::InitCoreExtension(code));
                 }
+            } else {
+                warn!("Core extension has no CoreInitialize function. Is it a valid extension?");
             }
         }
 
@@ -130,7 +132,7 @@ impl CoreAPI {
             return Err(Error::IncompatiblePluginRequiredVersion(version));
         }
 
-        Ok(CorePlugin {
+        Ok(CoreExtension {
             name: path
                 .as_ref()
                 .file_stem()
@@ -146,7 +148,7 @@ type InitializeFunc = extern "C" fn(&CoreAPIParam) -> i32;
 type VersionFunc = unsafe extern "C" fn(&mut LoaderVersion);
 
 #[derive(Debug)]
-struct CorePlugin {
+struct CoreExtension {
     name: String,
     handle: HMODULE,
 }
@@ -168,6 +170,13 @@ impl CoreAPIParam {
 }
 
 extern "C" fn add_core_function(name: *const u8, len: u32, func: *const c_void) {
+    if len == 0 {
+        // try to initialize c-string
+        let c_name = unsafe { std::ffi::CStr::from_ptr(name as *const i8) };
+        let name = c_name.to_str().unwrap_or_default();
+        return CoreAPI::instance().register_function(name, func);
+    }
+
     let name_slice = unsafe { std::slice::from_raw_parts(name, len as usize) };
     let name = std::str::from_utf8(name_slice).unwrap_or_default();
 
@@ -175,6 +184,15 @@ extern "C" fn add_core_function(name: *const u8, len: u32, func: *const c_void) 
 }
 
 extern "C" fn get_core_function(name: *const u8, len: u32) -> *const c_void {
+    if len == 0 {
+        // try to initialize c-string
+        let c_name = unsafe { std::ffi::CStr::from_ptr(name as *const i8) };
+        let name = c_name.to_str().unwrap_or_default();
+        return CoreAPI::instance()
+            .get_function(name)
+            .unwrap_or(std::ptr::null());
+    }
+
     let name_slice = unsafe { std::slice::from_raw_parts(name, len as usize) };
     let name = std::str::from_utf8(name_slice).unwrap_or_default();
 

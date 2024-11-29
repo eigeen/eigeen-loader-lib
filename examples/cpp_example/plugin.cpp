@@ -2,7 +2,7 @@
 
 /// @brief Initialize function *required*
 /// @return Ok = 0
-extern "C" API int32_t Initialize()
+extern "C" EL_API int32_t Initialize()
 {
     // Log something
     // This is a simple way to log messages to the console.
@@ -35,7 +35,7 @@ extern "C" API int32_t Initialize()
 
 /// @brief Required loader version
 /// @note For version compatibility checks.
-extern "C" API void LoaderVersion(Version *version)
+extern "C" EL_API void LoaderVersion(Version *version)
 {
     version->major = LOADER_VERSION_MAJOR;
     version->minor = LOADER_VERSION_MINOR;
@@ -46,7 +46,7 @@ extern "C" API void LoaderVersion(Version *version)
 /// @note Optional, but recommended.
 /// @note You can do nothing here, but if it's not defined, the loader will not unload the plugin.
 /// @return Ok = 0
-extern "C" API int32_t Uninitialize()
+extern "C" EL_API int32_t Uninitialize()
 {
     return 0;
 }

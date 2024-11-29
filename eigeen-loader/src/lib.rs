@@ -14,7 +14,7 @@ mod logger;
 mod singleton;
 mod utility;
 
-mod core_plugin;
+mod core_extension;
 mod plugin;
 
 // exports
@@ -25,7 +25,7 @@ fn panic_hook(info: &std::panic::PanicHookInfo) {
 }
 
 pub static PLUGIN_LOADER: Mutex<Option<plugin::PluginLoader>> = Mutex::new(None);
-pub static CORE_PLUGIN_API: Mutex<Option<core_plugin::CoreAPI>> = Mutex::new(None);
+pub static CORE_PLUGIN_API: Mutex<Option<core_extension::CoreAPI>> = Mutex::new(None);
 static INITIALIZED: AtomicBool = AtomicBool::new(false);
 
 #[no_mangle]
@@ -58,21 +58,21 @@ pub extern "C-unwind" fn Initialize() -> BOOL {
         debug!("After MhMainCtor");
         // parse game singletons
         singleton::SingletonManager::parse_singletons();
-        // load core plugins
-        let result = core_plugin::CoreAPI::instance().load_core_plugins();
+        // load core extensions
+        let result = core_extension::CoreAPI::instance().load_core_exts();
         match result {
             Ok((total, success)) => {
                 info!(
-                    "Loaded {} core plugins ({} total, {} failed).",
+                    "Loaded {} core extensions ({} total, {} failed).",
                     success,
                     total,
                     total - success
                 )
             }
-            Err(e) => log::error!("Failed to load core plugins: {}", e),
+            Err(e) => log::error!("Failed to load core extensions: {}", e),
         }
         // initialize d3d core module
-        if let Some(init_fn) = core_plugin::CoreAPI::instance().get_function("d3d_initialize") {
+        if let Some(init_fn) = core_extension::CoreAPI::instance().get_function("d3d_initialize") {
             let init_fn: extern "C" fn() -> i32 = unsafe { std::mem::transmute(init_fn) };
             let code = init_fn();
             if code != 0 {
