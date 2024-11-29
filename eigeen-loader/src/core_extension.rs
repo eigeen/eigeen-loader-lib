@@ -71,7 +71,7 @@ impl CoreAPI {
 
                     match Self::init_core_extension(&path) {
                         Ok(extension) => {
-                            info!("Core plugin loaded: {}", extension.name);
+                            info!("Core extension loaded: {}", extension.name);
                             self.extensions.push(extension);
 
                             stat.1 += 1;
