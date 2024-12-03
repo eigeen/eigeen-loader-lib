@@ -9,7 +9,7 @@ log = { workspace = true, features = ["std"] }
 
 [workspace]
 resolver = "2"
-members = ["eigeen-loader", "el-imgui-api", "shared"]
+members = ["eigeen-loader", "shared"]
 
     [workspace.dependencies]
     safetyhook = { git = "https://github.com/eigeen/safetyhook-rs.git" }

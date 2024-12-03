@@ -1,6 +1,0 @@
-[package]
-name = "el-imgui-api"
-version = "0.1.0"
-edition = "2021"
-
-[dependencies]

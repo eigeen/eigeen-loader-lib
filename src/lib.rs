@@ -21,4 +21,7 @@ pub mod prelude {
     pub use shared::export::*;
 
     pub use shared::game::mt_type::*;
+
+    pub use crate::include::address as el_address;
+    pub use crate::include::game as el_game;
 }

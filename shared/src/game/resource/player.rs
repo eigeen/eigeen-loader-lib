@@ -12,7 +12,7 @@ use super::Health;
 /// 玩家对象
 #[repr(transparent)]
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct Player(*mut c_void);
+pub struct Player(pub *mut c_void);
 
 unsafe impl Send for Player {}
 

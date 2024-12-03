@@ -5,8 +5,8 @@
 
 use std::{collections::HashMap, ffi::c_void, path::Path};
 
-use log::{error, info, warn};
-use shared::export::LoaderVersion;
+use log::{debug, error, info, warn};
+use shared::export::{core_extension::CoreAPIParam, LoaderVersion};
 use windows::{
     core::{s, PCWSTR},
     Win32::{
@@ -105,7 +105,7 @@ impl CoreAPI {
             if let Some(init_func) = init_func {
                 let init_func: InitializeFunc = std::mem::transmute(init_func);
 
-                let param = CoreAPIParam::new();
+                let param = new_core_api_param();
                 let code = init_func(&param);
                 if code != 0 {
                     return Err(Error::InitCoreExtension(code));
@@ -153,19 +153,10 @@ struct CoreExtension {
     handle: HMODULE,
 }
 
-/// Core plugin initialize function param.
-#[repr(C)]
-struct CoreAPIParam {
-    add_core_function: *const c_void,
-    get_core_function: *const c_void,
-}
-
-impl CoreAPIParam {
-    fn new() -> Self {
-        Self {
-            add_core_function: add_core_function as *const c_void,
-            get_core_function: get_core_function as *const c_void,
-        }
+fn new_core_api_param() -> CoreAPIParam {
+    CoreAPIParam {
+        add_core_function: add_core_function as *const c_void,
+        get_core_function: get_core_function as *const c_void,
     }
 }
 
@@ -174,12 +165,16 @@ extern "C" fn add_core_function(name: *const u8, len: u32, func: *const c_void) 
         // try to initialize c-string
         let c_name = unsafe { std::ffi::CStr::from_ptr(name as *const i8) };
         let name = c_name.to_str().unwrap_or_default();
-        return CoreAPI::instance().register_function(name, func);
+
+        debug!("Core extension function added: {}", name);
+        CoreAPI::instance().register_function(name, func);
+        return;
     }
 
     let name_slice = unsafe { std::slice::from_raw_parts(name, len as usize) };
     let name = std::str::from_utf8(name_slice).unwrap_or_default();
 
+    debug!("Core extension function added: {}", name);
     CoreAPI::instance().register_function(name, func);
 }
 
@@ -188,6 +183,8 @@ extern "C" fn get_core_function(name: *const u8, len: u32) -> *const c_void {
         // try to initialize c-string
         let c_name = unsafe { std::ffi::CStr::from_ptr(name as *const i8) };
         let name = c_name.to_str().unwrap_or_default();
+
+        debug!("Core extension function get: {}", name);
         return CoreAPI::instance()
             .get_function(name)
             .unwrap_or(std::ptr::null());
@@ -196,6 +193,7 @@ extern "C" fn get_core_function(name: *const u8, len: u32) -> *const c_void {
     let name_slice = unsafe { std::slice::from_raw_parts(name, len as usize) };
     let name = std::str::from_utf8(name_slice).unwrap_or_default();
 
+    debug!("Core extension function get: {}", name);
     CoreAPI::instance()
         .get_function(name)
         .unwrap_or(std::ptr::null())

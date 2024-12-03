@@ -1,4 +1,5 @@
 mod address;
+pub mod core_extension;
 
 pub use address::{AddressName, Code as AddressCode, SingletonName};
 

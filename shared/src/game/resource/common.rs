@@ -4,7 +4,7 @@ use crate::game::mt_type::GameObjectExt;
 
 #[repr(transparent)]
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct Health(*mut c_void);
+pub struct Health(pub *mut c_void);
 
 unsafe impl Send for Health {}
 
